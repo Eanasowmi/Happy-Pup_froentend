@@ -7,17 +7,9 @@ import 'dart:io' show Platform;
 import 'app/app_theme.dart';
 import 'app/app_routes.dart';
 import 'services/auth_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Load environment variables based on release mode
-  if (kReleaseMode) {
-    await dotenv.load(fileName: ".env.production");
-  } else {
-    await dotenv.load(fileName: ".env.local");
-  }
   
   if (kIsWeb) {
     // Must initialize web db factory BEFORE any DB calls
