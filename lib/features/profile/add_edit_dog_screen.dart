@@ -191,7 +191,7 @@ class _AddEditDogScreenState extends State<AddEditDogScreen> {
               
               _buildTextField(_nameController, "Dog Name", Icons.pets),
               const SizedBox(height: 20),
-              _buildTextField(_breedController, "Breed (e.g. Golden Retriever)", Icons.category_outlined),
+              _buildTextField(_breedController, "Breed (e.g. Golden Retriever)", Icons.category_outlined, isRequired: false),
               const SizedBox(height: 20),
               
               Row(
@@ -202,6 +202,7 @@ class _AddEditDogScreenState extends State<AddEditDogScreen> {
                       "Age (Years)", 
                       Icons.calendar_today,
                       keyboardType: TextInputType.number,
+                      isRequired: false,
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -211,6 +212,7 @@ class _AddEditDogScreenState extends State<AddEditDogScreen> {
                       "Weight (kg)", 
                       Icons.monitor_weight_outlined,
                       keyboardType: TextInputType.number,
+                      isRequired: false,
                     ),
                   ),
                 ],
@@ -258,7 +260,8 @@ class _AddEditDogScreenState extends State<AddEditDogScreen> {
     TextEditingController controller, 
     String label, 
     IconData icon, 
-    {TextInputType keyboardType = TextInputType.text}
+    {TextInputType keyboardType = TextInputType.text,
+     bool isRequired = true}
   ) {
     return TextFormField(
       controller: controller,
@@ -278,12 +281,12 @@ class _AddEditDogScreenState extends State<AddEditDogScreen> {
           borderSide: const BorderSide(color: Color(0xFF7E7DFF), width: 2),
         ),
       ),
-      validator: (value) {
+      validator: isRequired ? (value) {
         if (value == null || value.trim().isEmpty) {
           return "Required";
         }
         return null;
-      },
+      } : null,
     );
   }
 }

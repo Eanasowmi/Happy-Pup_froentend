@@ -293,18 +293,10 @@ class _BodyConditionScoreScreenState extends State<BodyConditionScoreScreen> wit
                   if (recommendations != null && recommendations.isNotEmpty)
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.3,
+                        maxHeight: MediaQuery.of(context).size.height * 0.35,
                       ),
                       child: SingleChildScrollView(
-                        child: Text(
-                          recommendations,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF4A4A4A),
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
+                        child: _buildRecommendationsView(recommendations, color),
                       ),
                     )
                   else
@@ -394,6 +386,113 @@ class _BodyConditionScoreScreenState extends State<BodyConditionScoreScreen> wit
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRecommendationsView(String text, Color primaryColor) {
+    final lines = text.split('\n');
+    List<Widget> widgets = [];
+    
+    for (var line in lines) {
+      if (line.trim().isEmpty) continue;
+      
+      bool isBullet = line.trim().startsWith('-') || line.trim().startsWith('*');
+      bool isNumbered = RegExp(r'^\d+\.\s').hasMatch(line.trim());
+      
+      String cleanLine = line.trim();
+      if (isBullet) {
+        cleanLine = cleanLine.replaceFirst(RegExp(r'^[-*]\s*'), '');
+      }
+      
+      // Parse markdown bold
+      List<TextSpan> spans = [];
+      final RegExp boldRegex = RegExp(r'\*\*(.*?)\*\*|\*(.*?)\*');
+      int lastIndex = 0;
+      
+      for (final match in boldRegex.allMatches(cleanLine)) {
+        if (match.start > lastIndex) {
+          spans.add(TextSpan(text: cleanLine.substring(lastIndex, match.start)));
+        }
+        String boldText = match.group(1) ?? match.group(2) ?? '';
+        spans.add(TextSpan(
+          text: boldText,
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        ));
+        lastIndex = match.end;
+      }
+      
+      if (lastIndex < cleanLine.length) {
+        spans.add(TextSpan(text: cleanLine.substring(lastIndex)));
+      }
+
+      if (isBullet) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, left: 12.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 7.0, right: 10.0),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF4A4A4A), height: 1.5),
+                      children: spans,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else if (isNumbered) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(fontSize: 15, color: primaryColor, height: 1.5, fontWeight: FontWeight.bold),
+                children: spans,
+              ),
+            ),
+          ),
+        );
+      } else {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 15, color: Color(0xFF22223B), height: 1.5, fontWeight: FontWeight.w600),
+                children: spans,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryColor.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: widgets,
+      ),
     );
   }
 
